@@ -1,11 +1,8 @@
-<p align="center">
-  <img src="https://raw.githubusercontent.com/Duragraph/.github/main/profile/banner.svg" alt="DuraGraph" width="600" />
-</p>
-
-<h3 align="center">The open-source AI workflow control plane built for production.</h3>
+<h3 align="center">DuraGraph</h3>
+<h4 align="center">The open-source AI workflow control plane built for production.</h4>
 
 <p align="center">
-  <a href="https://duragraph.ai/docs"><strong>Docs</strong></a> · <a href="https://github.com/orgs/Duragraph/projects/1"><strong>Roadmap</strong></a> · <a href="https://duragraph.ai/docs/docs/user-guide/installation/self-hosted"><strong>Self-Host Guide</strong></a>
+  <a href="https://duragraph.ai/docs"><strong>Docs</strong></a> · <a href="https://github.com/orgs/Duragraph/projects/1"><strong>Roadmap</strong></a> · <a href="https://duragraph.ai/docs/user-guide/installation/self-hosted"><strong>Self-Host Guide</strong></a>
 </p>
 
 ---
@@ -58,29 +55,35 @@ task up
 
 ## Architecture
 
-```
-┌─────────────┐     ┌──────────────────────────────┐     ┌─────────────┐
-│  Python SDK │────▶│        Control Plane          │◀────│   Go SDK    │
-│  Go SDK     │     │  ┌────────┐  ┌────────────┐  │     │  Studio UI  │
-│  REST API   │     │  │Commands│  │   Queries   │  │     │             │
-└─────────────┘     │  └───┬────┘  └─────┬──────┘  │     └─────────────┘
-                    │      │             │          │
-                    │  ┌───▼─────────────▼──────┐  │
-                    │  │     Event Store         │  │
-                    │  │     (PostgreSQL)        │  │
-                    │  └───┬────────────────────┘  │
-                    │      │                       │
-                    │  ┌───▼────────────────────┐  │
-                    │  │  Outbox → NATS JS       │  │
-                    │  └────────────────────────┘  │
-                    └──────────────────────────────┘
+```mermaid
+flowchart LR
+    subgraph Clients
+        PY[Python SDK]
+        GO[Go SDK]
+        REST[REST API]
+        UI[Studio UI]
+    end
+
+    subgraph CP[Control Plane]
+        CMD[Commands]
+        QRY[Queries]
+        ES[(Event Store<br/>PostgreSQL)]
+        OB[Outbox]
+    end
+
+    NATS[NATS JetStream]
+
+    Clients --> CMD & QRY
+    CMD --> ES
+    QRY --> ES
+    ES --> OB --> NATS
 ```
 
 Commands write events. Queries read projections. The outbox guarantees delivery to NATS JetStream. Workers pick up tasks, execute graph nodes against LLMs, and report results as new events. No state is ever mutated.
 
 ## Migrating from LangGraph?
 
-DuraGraph provides a compatibility layer for LangGraph Cloud APIs. See the [migration guide](https://duragraph.ai/docs/docs/user-guide/tutorials/langgraph-migration) to move your existing workflows over.
+DuraGraph provides a compatibility layer for LangGraph Cloud APIs. See the [migration guide](https://duragraph.ai/docs/user-guide/tutorials/langgraph-migration) to move your existing workflows over.
 
 ## License
 
