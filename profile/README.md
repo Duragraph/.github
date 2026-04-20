@@ -1,34 +1,93 @@
-# Duragraph
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Duragraph/.github/main/profile/banner.svg" alt="DuraGraph" width="600" />
+</p>
 
-**Open-source AI orchestration for everyone.**
+<h3 align="center">The open-source AI workflow control plane built for production.</h3>
 
-We're building reliable, observable, and maintainable AI infrastructure—bringing enterprise-grade workflow automation to self-hosted environments.
+<p align="center">
+  <a href="https://duragraph.ai/docs"><strong>Docs</strong></a> · <a href="https://github.com/orgs/Duragraph/projects/1"><strong>Roadmap</strong></a> · <a href="https://duragraph.ai/docs/docs/user-guide/installation/self-hosted"><strong>Self-Host Guide</strong></a>
+</p>
 
-## Our Mission
+---
 
-Enable developers to build production-ready AI pipelines with full control over their data and infrastructure. No vendor lock-in. No black boxes.
+DuraGraph is a self-hosted control plane for AI workflows. It orchestrates multi-step agent pipelines with **event sourcing**, **CQRS**, and **horizontal scaling** — giving you a full audit trail, point-in-time state reconstruction, and zero mutable state.
 
-## What We Build
+Deploy it on your infrastructure. Connect any LLM. Observe everything.
 
-Duragraph provides tools and libraries for AI workflow orchestration:
+## Why DuraGraph
 
-- **Core Platform** — Self-hosted orchestration engine with LangGraph Cloud API compatibility
-- **SDKs & Libraries** — Language-specific clients and integrations
-- **Developer Tools** — Visual dashboards, debugging, and observability
+| | |
+|---|---|
+| **Event-Sourced by Design** | Every state change is an immutable event. Replay, audit, and debug any workflow execution from the first token to the last. |
+| **True Self-Hosted Control Plane** | Not a managed service with a self-hosted afterthought. DuraGraph is built from the ground up for your infrastructure. |
+| **Horizontally Scalable** | Optimistic concurrency, lease-epoch fencing, and the transactional outbox pattern — scale workers independently of the control plane. |
+| **Open Architecture** | PostgreSQL event store, NATS JetStream for messaging, Prometheus metrics. No proprietary runtimes or opaque state stores. |
+| **Multi-LLM Native** | First-class support for OpenAI, Anthropic, and any provider. Switch models per-node without changing your graph. |
+| **Polyglot SDKs** | Python, Go, and TypeScript clients — not a single-language ecosystem. |
 
-## Core Values
+## Quick Start
 
-- **Open Source First** — All core components are Apache 2.0 licensed
-- **Developer Experience** — APIs that feel natural and documentation that helps
-- **Production Ready** — Event sourcing, fault tolerance, and enterprise security
-- **Community Driven** — Built with and for the developer community
+```bash
+# Pull and run
+docker compose -f https://raw.githubusercontent.com/Duragraph/duragraph/main/deploy/docker-compose.yml up -d
 
-## Get Involved
+# Verify
+curl http://localhost:8081/health
+```
 
-- Browse our [repositories](https://github.com/orgs/Duragraph/repositories)
-- Read the [documentation](https://duragraph.ai/docs)
-- Join the conversation and contribute
+Or build from source:
 
-## Contact
+```bash
+git clone https://github.com/Duragraph/duragraph.git
+cd duragraph
+task up
+```
 
-hello@duragraph.ai
+## Repositories
+
+| Repository | Description |
+|---|---|
+| [`duragraph`](https://github.com/Duragraph/duragraph) | Core control plane — Go, Echo, PostgreSQL, NATS |
+| [`duragraph-python`](https://github.com/Duragraph/duragraph-python) | Python SDK — graph definitions, async workers, pydantic models |
+| [`duragraph-go`](https://github.com/Duragraph/duragraph-go) | Go SDK — type-safe client with generics |
+| [`duragraph-studio`](https://github.com/Duragraph/duragraph-studio) | Visual workflow editor and execution dashboard |
+| [`duragraph-docs`](https://github.com/Duragraph/duragraph-docs) | Documentation site — [duragraph.ai/docs](https://duragraph.ai/docs) |
+| [`duragraph-spec`](https://github.com/Duragraph/duragraph-spec) | API specifications — OpenAPI, AsyncAPI |
+| [`duragraph-examples`](https://github.com/Duragraph/duragraph-examples) | Runnable examples across all SDKs |
+| [`duragraph-enterprise`](https://github.com/Duragraph/duragraph-enterprise) | Enterprise features — RBAC, SSO, audit logs, SLA enforcement |
+
+## Architecture
+
+```
+┌─────────────┐     ┌──────────────────────────────┐     ┌─────────────┐
+│  Python SDK │────▶│        Control Plane          │◀────│   Go SDK    │
+│  Go SDK     │     │  ┌────────┐  ┌────────────┐  │     │  Studio UI  │
+│  REST API   │     │  │Commands│  │   Queries   │  │     │             │
+└─────────────┘     │  └───┬────┘  └─────┬──────┘  │     └─────────────┘
+                    │      │             │          │
+                    │  ┌───▼─────────────▼──────┐  │
+                    │  │     Event Store         │  │
+                    │  │     (PostgreSQL)        │  │
+                    │  └───┬────────────────────┘  │
+                    │      │                       │
+                    │  ┌───▼────────────────────┐  │
+                    │  │  Outbox → NATS JS       │  │
+                    │  └────────────────────────┘  │
+                    └──────────────────────────────┘
+```
+
+Commands write events. Queries read projections. The outbox guarantees delivery to NATS JetStream. Workers pick up tasks, execute graph nodes against LLMs, and report results as new events. No state is ever mutated.
+
+## Migrating from LangGraph?
+
+DuraGraph provides a compatibility layer for LangGraph Cloud APIs. See the [migration guide](https://duragraph.ai/docs/docs/user-guide/tutorials/langgraph-migration) to move your existing workflows over.
+
+## License
+
+Core components are [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0). Enterprise features are source-available.
+
+---
+
+<p align="center">
+  <a href="https://duragraph.ai">duragraph.ai</a> · <a href="mailto:hello@duragraph.ai">hello@duragraph.ai</a>
+</p>
