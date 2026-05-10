@@ -20,38 +20,41 @@ Deploy it on your infrastructure. Connect any LLM. Observe everything.
 | **Horizontally Scalable** | Optimistic concurrency, lease-epoch fencing, and the transactional outbox pattern — scale workers independently of the control plane. |
 | **Open Architecture** | PostgreSQL event store, NATS JetStream for messaging, Prometheus metrics. No proprietary runtimes or opaque state stores. |
 | **Multi-LLM Native** | First-class support for OpenAI, Anthropic, and any provider. Switch models per-node without changing your graph. |
-| **Polyglot SDKs** | Python, Go, and TypeScript clients — not a single-language ecosystem. |
+| **Polyglot SDKs** | Python and Go clients today, more languages on the roadmap. |
 
-## Quick Start
+## Quick start
 
-```bash
-# Pull and run
-docker compose -f https://raw.githubusercontent.com/Duragraph/duragraph/main/deploy/docker-compose.yml up -d
-
-# Verify
-curl http://localhost:8081/health
-```
-
-Or build from source:
+The fastest path is the single-binary dev mode — embedded Postgres + NATS, no Docker needed:
 
 ```bash
-git clone https://github.com/Duragraph/duragraph.git
-cd duragraph
-task up
+# macOS / Linux (Homebrew tap)
+brew install Duragraph/tap/duragraph
+duragraph dev --studio
+
+# Open the dashboard at http://localhost:8081/
 ```
+
+Or run via Docker:
+
+```bash
+docker run --rm -p 8081:8081 duragraph/duragraph:latest dev --studio
+```
+
+For production deployment with external Postgres and NATS, see the [self-host guide](https://duragraph.ai/docs/user-guide/installation/self-hosted).
 
 ## Repositories
 
-| Repository | Description |
+DuraGraph lives in a single monorepo (`Duragraph/duragraph`) with one external companion:
+
+| Path / Repo | Description |
 |---|---|
-| [`duragraph`](https://github.com/Duragraph/duragraph) | Core control plane — Go, Echo, PostgreSQL, NATS |
-| [`duragraph-python`](https://github.com/Duragraph/duragraph-python) | Python SDK — graph definitions, async workers, pydantic models |
-| [`duragraph-go`](https://github.com/Duragraph/duragraph-go) | Go SDK — type-safe client with generics |
-| [`duragraph-studio`](https://github.com/Duragraph/duragraph-studio) | Visual workflow editor and execution dashboard |
-| [`duragraph-docs`](https://github.com/Duragraph/duragraph-docs) | Documentation site — [duragraph.ai/docs](https://duragraph.ai/docs) |
-| [`duragraph-spec`](https://github.com/Duragraph/duragraph-spec) | API specifications — OpenAPI, AsyncAPI |
-| [`duragraph-examples`](https://github.com/Duragraph/duragraph-examples) | Runnable examples across all SDKs |
-| [`duragraph-enterprise`](https://github.com/Duragraph/duragraph-enterprise) | Enterprise features — RBAC, SSO, audit logs, SLA enforcement |
+| [`Duragraph/duragraph`](https://github.com/Duragraph/duragraph) | Monorepo root — Go control plane (Echo, PostgreSQL, NATS) with embedded dashboard + Studio |
+| └ [`python/`](https://github.com/Duragraph/duragraph/tree/main/python) | Python SDK — graph definitions, async workers, pydantic models. PyPI: [`duragraph`](https://pypi.org/project/duragraph/) |
+| └ [`go-sdk/`](https://github.com/Duragraph/duragraph/tree/main/go-sdk) | Go SDK — type-safe client with generics. [`pkg.go.dev`](https://pkg.go.dev/github.com/duragraph/duragraph/go-sdk) |
+| └ [`studio/`](https://github.com/Duragraph/duragraph/tree/main/studio) | Visual workflow editor (embedded into the control-plane binary) |
+| └ [`docs/`](https://github.com/Duragraph/duragraph/tree/main/docs) | Documentation site source — [duragraph.ai/docs](https://duragraph.ai/docs) |
+| └ [`examples/`](https://github.com/Duragraph/duragraph/tree/main/examples) | Runnable examples across all SDKs |
+| [`Duragraph/duragraph-enterprise`](https://github.com/Duragraph/duragraph-enterprise) | Enterprise features — RBAC, SSO, audit logs, SLA enforcement (source-available) |
 
 ## Architecture
 
@@ -80,10 +83,6 @@ flowchart LR
 ```
 
 Commands write events. Queries read projections. The outbox guarantees delivery to NATS JetStream. Workers pick up tasks, execute graph nodes against LLMs, and report results as new events. No state is ever mutated.
-
-## Migrating from LangGraph?
-
-DuraGraph provides a compatibility layer for LangGraph Cloud APIs. See the [migration guide](https://duragraph.ai/docs/user-guide/tutorials/langgraph-migration) to move your existing workflows over.
 
 ## License
 
