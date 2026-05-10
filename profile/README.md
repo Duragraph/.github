@@ -44,9 +44,9 @@ For production deployment with external Postgres and NATS, see the [self-host gu
 
 ## Repositories
 
-DuraGraph lives in a single monorepo (`Duragraph/duragraph`) with one external companion:
+DuraGraph lives in a single monorepo:
 
-| Path / Repo | Description |
+| Path | Description |
 |---|---|
 | [`Duragraph/duragraph`](https://github.com/Duragraph/duragraph) | Monorepo root — Go control plane (Echo, PostgreSQL, NATS) with embedded dashboard + Studio |
 | └ [`python/`](https://github.com/Duragraph/duragraph/tree/main/python) | Python SDK — graph definitions, async workers, pydantic models. PyPI: [`duragraph`](https://pypi.org/project/duragraph/) |
@@ -54,7 +54,6 @@ DuraGraph lives in a single monorepo (`Duragraph/duragraph`) with one external c
 | └ [`studio/`](https://github.com/Duragraph/duragraph/tree/main/studio) | Visual workflow editor (embedded into the control-plane binary) |
 | └ [`docs/`](https://github.com/Duragraph/duragraph/tree/main/docs) | Documentation site source — [duragraph.ai/docs](https://duragraph.ai/docs) |
 | └ [`examples/`](https://github.com/Duragraph/duragraph/tree/main/examples) | Runnable examples across all SDKs |
-| [`Duragraph/duragraph-enterprise`](https://github.com/Duragraph/duragraph-enterprise) | Enterprise features — RBAC, SSO, audit logs, SLA enforcement (source-available) |
 
 ## Architecture
 
